@@ -10,6 +10,9 @@ import Foundation
 
 class Album {
     
+    // this class is created based on model logic, such as core 'thing' properties, methods, and plans for possible subclassability...
+    // and init() values on instantiation...
+    
     // MARK: - class properties
     
     let title: String!
