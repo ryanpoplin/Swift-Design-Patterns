@@ -30,17 +30,19 @@ class HorizontalScroller: UIView {
  
     override init(frame: CGRect) {
         super.init(frame: frame)
-        //initializedScrollView()
+        initializedScrollView()
     }
     
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)!
-        //initializedScrollView()
+        initializedScrollView()
     }
     
     func initializedScrollView() {
     
         scroller = UIScrollView()
+        // scroller's delegate = HorizontalScroller
+        scroller.delegate = self
         addSubview(scroller)
         // apply our own constraints
         scroller.translatesAutoresizingMaskIntoConstraints = false
@@ -96,4 +98,30 @@ class HorizontalScroller: UIView {
         }
     }
     
+    func centerCurrentView() {
+        var xFinal = Int(scroller.contentOffset.x) + (VIEWS_OFFSET/2) + VIEW_PADDING
+        let viewIndex = xFinal / (VIEW_DIMENSIONS + (2*VIEW_PADDING))
+        xFinal = viewIndex * (VIEW_DIMENSIONS + (2*VIEW_PADDING))
+        scroller.setContentOffset(CGPoint(x: xFinal, y: 0), animated: true)
+        if let delegate = delegate {
+            delegate.horizontalScrollerClickedViewAtIndex(self, index: Int(viewIndex))
+        }  
+    }
+    
+    override func didMoveToSuperview() {
+        reload()
+    }
+    
+}
+
+extension HorizontalScroller: UIScrollViewDelegate {
+    func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate {
+            centerCurrentView()
+        }
+    }
+    
+    func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
+        centerCurrentView()
+    }
 }

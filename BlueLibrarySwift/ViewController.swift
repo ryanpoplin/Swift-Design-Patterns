@@ -26,6 +26,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
 	@IBOutlet var dataTable: UITableView!
 	@IBOutlet var toolbar: UIToolbar!
+    // this ref. is associated with the HorizontalScroller class
+    @IBOutlet weak var scroller: HorizontalScroller!
 	
     private var allAlbums = [Album]()
     private var currentAlbumData: (titles: [String], values: [String])?
@@ -46,6 +48,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         view.addSubview(dataTable!)
         
         showDataForAlbum(currentAlbumIndex)
+        
+        scroller.delegate = self
+        reloadScroller()
         
 		// Do any additional setup after loading the view, typically from a nib.
 	}
@@ -97,5 +102,42 @@ extension ViewController {
             cell.detailTextLabel!.text = albumData.values[indexPath.row]
         }
         return cell
+    }
+}
+
+extension ViewController: HorizontalScrollerDelegate {
+    func horizontalScrollerClickedViewAtIndex(scroller: HorizontalScroller, index: Int) {
+        let previousAlbumView = scroller.viewAtIndex(currentAlbumIndex) as! AlbumView
+        previousAlbumView.highlightAlbum(false)
+        currentAlbumIndex = index
+        let albumView = scroller.viewAtIndex(index) as! AlbumView
+        albumView.highlightAlbum(true)
+        showDataForAlbum(index)
+    }
+    
+    func numberOfViewsForHorizontalScroller(scroller: HorizontalScroller) -> (Int) {
+        return allAlbums.count
+    }
+    
+    func horizontalScrollerViewAtIndex(scroller: HorizontalScroller, index: Int) -> (UIView) {
+        let album = allAlbums[index]
+        let albumView = AlbumView(frame: CGRect(x: 0, y: 0, width: 100, height: 100), albumCover: album.coverUrl)
+        if currentAlbumIndex == index {
+            albumView.highlightAlbum(true)
+        } else {
+            albumView.highlightAlbum(false)
+        }
+        return albumView
+    }
+    
+    func reloadScroller() {
+        allAlbums = LibraryAPI.sharedInstance.getAlbums()
+        if currentAlbumIndex < 0 {
+            currentAlbumIndex = 0
+        } else if currentAlbumIndex >= allAlbums.count {
+            currentAlbumIndex = allAlbums.count - 1
+        }
+        scroller.reload()
+        showDataForAlbum(currentAlbumIndex)
     }
 }
