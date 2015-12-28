@@ -22,7 +22,7 @@
 
 import UIKit
 
-class ViewController: UITableViewController {
+class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
 	@IBOutlet var dataTable: UITableView!
 	@IBOutlet var toolbar: UIToolbar!
@@ -77,7 +77,7 @@ class ViewController: UITableViewController {
 // MARK: - data source
 
 extension ViewController {
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if let albumData = currentAlbumData {
             return albumData.titles.count
         } else {
@@ -90,7 +90,7 @@ extension ViewController {
 
 // ViewController is the delegate of the UITableView
 extension ViewController {
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
         if let albumData = currentAlbumData {
             cell.textLabel!.text = albumData.titles[indexPath.row]
@@ -99,4 +99,3 @@ extension ViewController {
         return cell
     }
 }
-
