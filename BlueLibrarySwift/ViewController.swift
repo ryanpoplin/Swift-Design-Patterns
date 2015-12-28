@@ -22,21 +22,81 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UITableViewController {
 
 	@IBOutlet var dataTable: UITableView!
 	@IBOutlet var toolbar: UIToolbar!
 	
+    private var allAlbums = [Album]()
+    private var currentAlbumData: (titles: [String], values: [String])?
+    private var currentAlbumIndex = 0
+    
 	override func viewDidLoad() {
 		super.viewDidLoad()
+        
+        navigationController?.navigationBar.translucent = false
+        
+        currentAlbumIndex = 0
+        
+        allAlbums = LibraryAPI.sharedInstance.getAlbums()
+        
+        dataTable.delegate = self
+        dataTable.dataSource = self
+        dataTable.backgroundView = nil
+        view.addSubview(dataTable!)
+        
+        showDataForAlbum(currentAlbumIndex)
+        
 		// Do any additional setup after loading the view, typically from a nib.
 	}
 
+    func showDataForAlbum(albumIndex: Int) {
+    
+        if (albumIndex < allAlbums.count && albumIndex > -1) {
+            let album = allAlbums[albumIndex]
+            currentAlbumData = album.ae_tableRepresentation()
+        } else {
+            currentAlbumData = nil
+        }
+        
+        dataTable!.reloadData()
+    
+    }
+    
 	override func didReceiveMemoryWarning() {
 		super.didReceiveMemoryWarning()
 		// Dispose of any resources that can be recreated.
 	}
 
+}
 
+// This is how you make your delegate conform to a protocol — think of it as a promise made by the delegate to fulfill the method’s contract. Here, you indicate that ViewController will conform to the UITableViewDataSource and UITableViewDelegate protocols. This way UITableView can be absolutely certain that the required methods are implemented by its delegate.
+
+// ViewController is the data source for our UITableView properties and methods to work with
+
+// MARK: - data source
+
+extension ViewController {
+    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if let albumData = currentAlbumData {
+            return albumData.titles.count
+        } else {
+            return 0
+        }
+    }
+}
+
+// MARK: - delegate
+
+// ViewController is the delegate of the UITableView
+extension ViewController {
+    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
+        if let albumData = currentAlbumData {
+            cell.textLabel!.text = albumData.titles[indexPath.row]
+            cell.detailTextLabel!.text = albumData.values[indexPath.row]
+        }
+        return cell
+    }
 }
 

@@ -28,7 +28,7 @@ class HTTPClient {
 		return NSData()
 	}
 	
-	func postRequest(url: String, body: String) -> (AnyObject){
+	func postRequest(url: String, body: String) -> (AnyObject) {
 		return NSData()
 	}
 	
